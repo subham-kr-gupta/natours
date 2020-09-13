@@ -81,3 +81,26 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = freshUser; // For future use in next middleware
   next();
 });
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    // roles ['admin', 'lead-guides']
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError('You do not have permission to perform this action', 403))
+    };
+
+    next();
+  };
+};
+
+exports.forgotPassword = catchAsync( async (req, res, next) => {
+  // 1) Get user based on Posted mail
+  const user =  await User.findOne( {email: req.body.email });
+  // 2) Generate the random reset token
+
+  // 3) Send it to user's mail
+});
+
+exports.resetPassword = (req, res, next) => {
+  TODO 
+};
