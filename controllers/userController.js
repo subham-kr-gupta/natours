@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const APIFeatures = require('./../utils/apiFeatures');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -10,19 +11,33 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.getAllUsers = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  // execute query
+  const features = new APIFeatures(User.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const users = await features.query;
 
-exports.createNewUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
+  res.status(200).json({
+    status: 'success',
+    data: {
+      users,
+    },
   });
-};
+});
+
+exports.createNewUser = catchAsync(async (req, res, next) => {
+  const newUser = await User.create(req.body);
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      users: newUser,
+    },
+  });
+});
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user try to update password
