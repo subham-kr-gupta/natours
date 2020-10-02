@@ -1,5 +1,6 @@
 // review / rating / createdAt / ref to tour / ref to User
 const mongoose = require('mongoose');
+const Tour = require('./tourModel');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -37,6 +38,8 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 reviewSchema.pre(/^find/, function (next) {
   //   this.populate({
   //     path: 'user',
@@ -47,10 +50,55 @@ reviewSchema.pre(/^find/, function (next) {
   //   });
   this.populate({
     path: 'user',
-    select: '-__v -passwordChangedAt',
+    select: 'name photo',
   });
 
   next();
+});
+
+reviewSchema.statics.calcAverageRatings = async function (tourId) {
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId },
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRating: { $sum: 1 },
+        avgRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsAverage: stats[0].avgRating,
+      ratingsQuantity: stats[0].nRating,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsAverage: 4.5,
+      ratingsQuantity: 0,
+    });
+  }
+};
+
+reviewSchema.post('save', function () {
+  // this points to current review
+  this.constructor.calcAverageRatings(this.tour);
+});
+
+// findByIdAndUpdate
+// findByIdAndDelete
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  // In order to get the review doc in post we need to save it in this
+  this.r = await this.findOne();
+  next();
+});
+
+reviewSchema.post(/^findOneAnd/, async function () {
+  // await this.findOne(); does NOT work here, query has already executed
+  await this.r.constructor.calcAverageRatings(this.r.tour);
 });
 
 const Review = mongoose.model('Review', reviewSchema);
