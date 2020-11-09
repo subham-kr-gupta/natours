@@ -22,7 +22,6 @@ mongoose
     useCreateIndex: true,
     useFindAndModify: false,
     useUnifiedTopology: true,
-    autoIndex: true,
   })
   .then((con) => console.log('DB Connection Successful!!'));
 

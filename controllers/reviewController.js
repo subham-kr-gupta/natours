@@ -1,6 +1,6 @@
-// const catchAsync = require('./../utils/catchAsync');
 const Review = require('./../models/reviewModel');
 const factory = require('./factoryHandler');
+// const catchAsync = require('./../utils/catchAsync');
 
 exports.updateTourUserIds = (req, res, next) => {
   if (!req.body.tour) req.body.tour = req.params.tourId;

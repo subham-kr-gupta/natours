@@ -1,6 +1,6 @@
-const User = require('../models/userModel');
-const AppError = require('../utils/appError');
-const catchAsync = require('../utils/catchAsync');
+const User = require('./../models/userModel');
+const catchAsync = require('./../utils/catchAsync');
+const AppError = require('./../utils/appError');
 const factory = require('./factoryHandler');
 
 const filterObj = (obj, ...allowedFields) => {
@@ -14,7 +14,7 @@ const filterObj = (obj, ...allowedFields) => {
 exports.createNewUser = catchAsync(async (req, res, next) => {
   res.status(500).json({
     status: 'error',
-    message: 'This route is not defined! Please use /signup to create user',
+    message: 'This route is not defined! Please use /signup instead',
   });
 });
 
@@ -26,7 +26,7 @@ exports.getMe = (req, res, next) => {
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user try to update password
   if (req.body.password || req.body.passwordConfirm) {
-    next(
+    return next(
       new AppError(
         'This route is not for password updates. Please use /updatePassword',
         400

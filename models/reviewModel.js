@@ -6,7 +6,7 @@ const reviewSchema = new mongoose.Schema(
   {
     review: {
       type: String,
-      required: [true, 'Review can not be empty'],
+      required: [true, 'Review can not be empty!'],
     },
 
     rating: {
@@ -27,7 +27,7 @@ const reviewSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
-      required: [true, 'Review must belong to a User'],
+      required: [true, 'Review must belong to a user'],
     },
   },
   // When we have a virtual property, basically a field that is not stored in the database but
@@ -41,13 +41,14 @@ const reviewSchema = new mongoose.Schema(
 reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
 reviewSchema.pre(/^find/, function (next) {
-  //   this.populate({
-  //     path: 'user',
-  //     select: '-__v -passwordChangedAt',
-  //   }).populate({
-  //     path: 'tour',
-  //     select: 'name',
-  //   });
+  // this.populate({
+  //   path: 'tour',
+  //   select: 'name'
+  // }).populate({
+  //   path: 'user',
+  //   select: 'name photo'
+  // });
+
   this.populate({
     path: 'user',
     select: 'name photo',

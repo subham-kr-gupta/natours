@@ -12,9 +12,7 @@ exports.deleteOne = (Model) =>
 
     res.status(204).json({
       status: 'success',
-      data: {
-        tour: null,
-      },
+      data: null,
     });
   });
 
@@ -79,14 +77,15 @@ exports.getAll = (Model) =>
       .sort()
       .limitFields()
       .paginate();
-    const docs = await features.query;
+    // const doc = await features.query.explain();
+    const doc = await features.query;
 
-    // Send Response
+    // SEND RESPONSE
     res.status(200).json({
       status: 'success',
+      results: doc.length,
       data: {
-        results: docs.length,
-        data: docs,
+        data: doc,
       },
     });
   });
